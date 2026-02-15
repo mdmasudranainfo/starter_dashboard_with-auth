@@ -13,6 +13,9 @@ import {
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Breadcrumb, Layout, Menu, theme, ConfigProvider, Avatar, Dropdown, Switch, Space } from 'antd';
+import { signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import ProtectedRoute from '../ProtectedRoute';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -53,6 +56,8 @@ const MainLayoutInner: React.FC<{
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
+    const { data: session, status } = useSession();
+    const router = useRouter();
 
     const userMenu: MenuProps['items'] = [
         {
@@ -64,6 +69,9 @@ const MainLayoutInner: React.FC<{
             key: 'logout',
             icon: <LogoutOutlined />,
             label: 'Logout',
+            onClick: async () => {
+                await signOut({ redirect: true, callbackUrl: '/login' });
+            }
         },
     ];
 
@@ -74,26 +82,34 @@ const MainLayoutInner: React.FC<{
                 <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" items={items} />
             </Sider>
             <Layout>
-                <Header style={{
-                    padding: '0 16px',
-                    background: colorBgContainer,
-                    marginBottom: 10,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    gap: '16px'
-                }}>
-                    <Switch
-                        checked={isDarkMode}
-                        onChange={setIsDarkMode}
-                        checkedChildren={<MoonOutlined />}
-                        unCheckedChildren={<SunOutlined />}
-                    />
-                    <Dropdown menu={{ items: userMenu }} placement="bottomRight">
-                        <Space style={{ cursor: 'pointer' }}>
-                            <Avatar icon={<UserOutlined />} />
-                        </Space>
-                    </Dropdown>
+                <Header style={
+                    {
+                        padding: '0 16px',
+                        background: colorBgContainer,
+                        marginBottom: 10,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }
+                }>
+                    <div>
+                        <Switch
+                            checked={isDarkMode}
+                            onChange={setIsDarkMode}
+                            checkedChildren={<MoonOutlined />}
+                            unCheckedChildren={<SunOutlined />}
+                        />
+                    </div>
+                    <div>
+                        {status === 'authenticated' && session?.user && (
+                            <Dropdown menu={{ items: userMenu }} placement="bottomRight">
+                                <Space style={{ cursor: 'pointer' }}>
+                                    <span style={{ marginRight: '8px' }}>{session.user.name || session.user.phone}</span>
+                                    <Avatar icon={<UserOutlined />} />
+                                </Space>
+                            </Dropdown>
+                        )}
+                    </div>
                 </Header>
                 <Content style={{ margin: '0 16px' }}>
                     {/* <Breadcrumb style={{ margin: '16px 0' }} items={[{ title: 'User' }, { title: 'Bill' }]} /> */}
@@ -114,7 +130,7 @@ const MainLayoutInner: React.FC<{
             </Layout>
         </Layout>
     );
-};
+}
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isDarkMode, setIsDarkMode] = useState(false);
@@ -125,12 +141,14 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
             }}
         >
-            <MainLayoutInner
-                isDarkMode={isDarkMode}
-                setIsDarkMode={setIsDarkMode}
-            >
-                {children}
-            </MainLayoutInner>
+            <ProtectedRoute>
+                <MainLayoutInner
+                    isDarkMode={isDarkMode}
+                    setIsDarkMode={setIsDarkMode}
+                >
+                    {children}
+                </MainLayoutInner>
+            </ProtectedRoute>
         </ConfigProvider>
     );
 };

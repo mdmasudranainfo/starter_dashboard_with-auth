@@ -1,5 +1,25 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Authentication System
+
+This application uses NextAuth.js for authentication with a custom credentials provider. Here are the key features:
+
+- **Login API**: Connects to `http://tarashiserver.southasianetwork.org/auth/login`
+- **Session Duration**: 30 minutes
+- **Protected Routes**: All routes are protected except `/login`
+- **Custom Login Page**: Located at `/login`
+- **User Roles**: Supports different user roles (admin, etc.)
+
+### Login Credentials
+
+The login form accepts:
+- Phone number in the format `+880xxxxxxxxx`
+- Password
+
+### Session Management
+
+Sessions are managed using JWT tokens with a 30-minute expiry. The system automatically redirects unauthenticated users to the login page.
+
 ## Getting Started
 
 First, run the development server:
