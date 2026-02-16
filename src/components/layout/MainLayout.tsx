@@ -16,6 +16,7 @@ import { Breadcrumb, Layout, Menu, theme, ConfigProvider, Avatar, Dropdown, Swit
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import ProtectedRoute from '../ProtectedRoute';
+import Link from 'next/link';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -36,15 +37,21 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-    getItem('Option 1', '1', <PieChartOutlined />),
-    getItem('Option 2', '2', <DesktopOutlined />),
-    getItem('User', 'sub1', <UserOutlined />, [
-        getItem('Tom', '3'),
-        getItem('Bill', '4'),
-        getItem('Alex', '5'),
-    ]),
-    getItem('Team', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
-    getItem('Files', '9', <FileOutlined />),
+  getItem(<Link href="/">Dashboard</Link>, 'dashboard', <PieChartOutlined />),
+  getItem(<Link href="/reports">Reports</Link>, 'reports', <DesktopOutlined />),
+
+  getItem('User', 'sub1', <UserOutlined />, [
+    getItem(<Link href="/users/tom">Tom</Link>, 'tom'),
+    getItem(<Link href="/users/bill">Bill</Link>, 'bill'),
+    getItem(<Link href="/users/alex">Alex</Link>, 'alex'),
+  ]),
+
+  getItem('Team', 'sub2', <TeamOutlined />, [
+    getItem(<Link href="/team/1">Team 1</Link>, 'team1'),
+    getItem(<Link href="/team/2">Team 2</Link>, 'team2'),
+  ]),
+
+  getItem(<Link href="/files">Files</Link>, 'files', <FileOutlined />),
 ];
 
 const MainLayoutInner: React.FC<{
@@ -125,7 +132,7 @@ const MainLayoutInner: React.FC<{
                     </div>
                 </Content>
                 <Footer style={{ textAlign: 'center' }}>
-                    Ant Design ©{new Date().getFullYear()} Created by Ant UED
+                    Space Devs ©{new Date().getFullYear()} Created by Space Devs
                 </Footer>
             </Layout>
         </Layout>
